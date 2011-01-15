@@ -1,4 +1,4 @@
 cron:
   - description: call-making task
     url: /calls/dial
-    schedule: every minute
+    schedule: every 1 minutes
