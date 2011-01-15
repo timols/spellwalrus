@@ -1,0 +1,4 @@
+To Do:
+  Standardize phone numbers to include country code
+  Ensure phone number is unique
+  Validate phone number
