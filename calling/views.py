@@ -64,13 +64,17 @@ class QuestionResponder(webapp.RequestHandler):
         except IndexError:
             return 'FAIL'
         
-        correct = digits == chars_to_digits(TODAYS_KEYWORD)
+        correct = (digits == chars_to_digits(TODAYS_KEYWORD))
         
         call_record = Call(user=the_user, correct_response=correct)
         call_record.put()
         
-        response = correct and YOU_SPELLED_THE_WALRUS or THATS_NOT_HOW_YOU_SPELL_WALRUS
-        self.response.out.write(response)
+        if correct:
+            res = YOU_SPELLED_THE_WALRUS
+        else:
+            res = THATS_NOT_HOW_YOU_SPELL_WALRUS % \
+                  {'keyword': TODAYS_KEYWORD, 'domain': WALRUS_DOMAIN}
+        self.response.out.write(res)
 
 
 class ValidationResponder(webapp.RequestHandler):
@@ -82,7 +86,9 @@ class ValidationResponder(webapp.RequestHandler):
         digits, to, user_key = [self.request.get(p) for p in params]
         
         if digits != '1':
-            return self.response.out.write(NUMBER_WAS_NOT_VALIDATED)
+            res = NUMBER_WAS_NOT_VALIDATED % \
+                  {'user_key': user_key, 'domain': WALRUS_DOMAIN}
+            return self.response.out.write(res)
         
         # Validation is complete, so save/update user details
         user = User.find_or_validate(to, user_key)

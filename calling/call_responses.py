@@ -22,7 +22,10 @@ YOU_SPELLED_THE_WALRUS = """<Response>
 """
 
 THATS_NOT_HOW_YOU_SPELL_WALRUS = """<Response>
-    <Say>That is incorrect. You give us money now</Say>
+    <Say>FAIL!!! That's not how you spell %(keyword)s</Say>
+    <Gather action="%(domain)s/twilio/question/callback" method="GET" timeout="10">
+        <Say>Spell the word %(keyword)s.</Say>
+    </Gather>
 </Response>
 """
 
@@ -32,6 +35,8 @@ NUMBER_WAS_VALIDATED = """<Response>
 """
 
 NUMBER_WAS_NOT_VALIDATED = """<Response>
-    <Say>Your number was not validated. Please try again</Say>
+    <Gather action="%(domain)s/twilio/validation/callback?user_key=%(user_key)s" method="POST" timeout="10">
+        <Say>Something went wrong. Please confirm your phone number by pressing 1, followed by the pound sign</Say>
+    </Gather>
 </Response>
 """
