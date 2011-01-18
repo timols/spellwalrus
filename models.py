@@ -10,7 +10,7 @@ class User(db.Model):
     phone_number        = db.PhoneNumberProperty(required=True)
     wakeup_time         = db.TimeProperty(required=True)
     include_weekends    = db.BooleanProperty(default=False)
-    
+    validated           = db.BooleanProperty(default=False)
     created             = db.DateTimeProperty(auto_now_add=True)
     edited              = db.DateTimeProperty(auto_now=True)
     
@@ -19,9 +19,14 @@ class User(db.Model):
         calls = Call.all()
         calls.filter('user =', self)
         calls.filter('created >', an_hour_ago)
-        return len(calls) != 0
-        
-    
+        return calls.count() != 0
+
+    def unique(self):
+        users = User.all()
+        users.filter('phone_number =', self.phone_number)
+        return users.count() == 0
+
+   
 class Call(db.Model):
     """
     A response by a user to an automated wake up call

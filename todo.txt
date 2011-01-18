@@ -1,5 +1,5 @@
 To Do:
-  Standardize phone numbers to include country code
-  Ensure phone number is unique
-  Validate phone number
-  Handle different time zones
+   Standardize phone numbers to include country code
+x  Ensure phone number is unique (Done, by timols @ Jan 17, 2011 - 3:02pm)
+   Validate phone number
+   Handle different time zones
