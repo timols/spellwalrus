@@ -3,14 +3,16 @@
 
 
 WAKEUP_CALL = """<Response>
-    <Gather action="%(domain)s/twilio/question/callback" method="GET" timeout="10">
+    <Gather action="%(domain)s/twilio/question/callback" method="GET" timeout="5">
         <Say>Spell the word %(keyword)s.</Say>
+        <Say>%(sentence)s</Say>
+        <Say>Spell %(keyword)s.</Say>
     </Gather>
 </Response>"""
 
 
 VALIDATION_CALL = """<Response>
-    <Gather action="%(domain)s/twilio/validation/callback?user_key=%(user_key)s" method="POST" timeout="10">
+    <Gather action="%(domain)s/twilio/validation/callback?user_key=%(user_key)s" method="POST" timeout="5">
         <Say>Please confirm your phone number by pressing 1, followed by the pound sign</Say>
     </Gather>
 </Response>"""
@@ -23,7 +25,7 @@ YOU_SPELLED_THE_WALRUS = """<Response>
 
 THATS_NOT_HOW_YOU_SPELL_WALRUS = """<Response>
     <Say>FAIL!!! That's not how you spell %(keyword)s</Say>
-    <Gather action="%(domain)s/twilio/question/callback" method="GET" timeout="10">
+    <Gather action="%(domain)s/twilio/question/callback" method="GET" timeout="5">
         <Say>Spell the word %(keyword)s.</Say>
     </Gather>
 </Response>
@@ -35,7 +37,7 @@ NUMBER_WAS_VALIDATED = """<Response>
 """
 
 NUMBER_WAS_NOT_VALIDATED = """<Response>
-    <Gather action="%(domain)s/twilio/validation/callback?user_key=%(user_key)s" method="POST" timeout="10">
+    <Gather action="%(domain)s/twilio/validation/callback?user_key=%(user_key)s" method="POST" timeout="5">
         <Say>Something went wrong. Please confirm your phone number by pressing 1, followed by the pound sign</Say>
     </Gather>
 </Response>

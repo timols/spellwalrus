@@ -29,7 +29,11 @@ class QuestionRenderer(webapp.RequestHandler):
         for instance "Please spell WALRUS".
         """
         self.response.headers['Content-Type'] = 'application/xml'
-        response = WAKEUP_CALL % {'domain': WALRUS_DOMAIN, 'keyword': TODAYS_KEYWORD}
+        response = WAKEUP_CALL % {
+            'domain': WALRUS_DOMAIN, 
+            'keyword': TODAYS_KEYWORD['word'],
+            'sentence': TODAYS_KEYWORD['sentence']
+        }
         self.response.out.write(response)
 
 
@@ -72,8 +76,10 @@ class QuestionResponder(webapp.RequestHandler):
         if correct:
             res = YOU_SPELLED_THE_WALRUS
         else:
-            res = THATS_NOT_HOW_YOU_SPELL_WALRUS % \
-                  {'keyword': TODAYS_KEYWORD, 'domain': WALRUS_DOMAIN}
+            res = THATS_NOT_HOW_YOU_SPELL_WALRUS % {
+                'keyword': TODAYS_KEYWORD['word'],
+                'domain': WALRUS_DOMAIN
+            }
         self.response.out.write(res)
 
 
