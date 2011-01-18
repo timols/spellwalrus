@@ -1,4 +1,4 @@
 cron:
-  - description: call-making task
-    url: /calls/dial
+  - description: Make scheduled wakeup calls
+    url: /jobs/make-wakeup-calls
     schedule: every 1 minutes
