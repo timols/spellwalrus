@@ -2,11 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{% block title %}This is a walrus{% endblock %}</title>
+  <title>{% block title %}Spell WALRUS{% endblock %}</title>
+  
+  <link rel="stylesheet" href="http://yui.yahooapis.com/3.3.0/build/cssreset/reset-min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <script type="text/javascript" src="http://use.typekit.com/mkd4wdi.js"></script>
+  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+  
 </head>
 <body>
-  <div class="container">
+  <div id="screen"></div>
+  <div id="container">
     {% block content %}{% endblock %}
   </div>
+  
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
+  {% block extra_js %}{% endblock %}
 </body>
 </html>

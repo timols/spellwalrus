@@ -2,17 +2,69 @@
 
 
 {% block content %}
-<form method="post" action="">
-  <label for="phone_number">Phone number:</label><input type="text" name="phone_number" value="" />
-  
-  <label for="wakeup_time">Wakeup time:</label>
-  <select name="wakeup_time" size="1">
-    <option value="730">7:30 am</option>
-    <option value="800">8:00 am</option>
-  </select>
-  
-  <label for="include_weekends">Include weekends?</label><input type="checkbox" name="include_weekends" />
-  
-  <input type="submit" value="save" />
-</form>
+<h1>finally!! a <strong>free&nbsp;daily wakeup&nbsp;call</strong> that's also a zoo&nbsp;inside your&nbsp;telephone!</h1>
+
+<img src="/images/walrus.jpg" style="margin: 80px auto; display: block;" />
+
+<h2>just fill out this card...</h2>
+
+<div id="registration-card" class="tk-caflisch-script-pro">
+  <form method="post" action="">
+    <div>Dear Sir,</div>
+    
+    <div>
+      <label for="wakeup_time">Please call and wake me at</label> 
+      <select name="wakeup_time" size="1">
+        <option value="730">7:30 am</option>
+        <option value="800">8:00 am</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="phone_number">My telephone number is</label> 
+      <input type="text" name="phone_number" value="" size="16" maxlength="16" />
+    </div>
+
+    <input type="submit" value="thank you so much!" />
+  </form>
+</div>
+
+<h2>... and we'll call you every weekday to ask a simple question, for instance:</h2>
+<img src="/images/phone.jpg" style="margin: 40px auto 20px; display: block;" />
+<div style="margin-bottom: 50px; text-align: center">(this works your brain just a little bit to help you wake up)</div>
+
+<h2>we'll keep a record of your success so that you can show your friends or feel good about yourself!</h2>
+
+<h1 style="margin-top: 80px; font-weight: bold;"><a href="#get-started" id="get-started">get started now!</a></h1>
+
 {% endblock content %}
+
+
+{% block extra_js %}
+<script type="text/javascript" charset="utf-8">
+$(function () {
+  // $('#get-started')
+  
+  var card = $('#registration-card')
+    , cardHeight = card.outerHeight()
+    , cardY = card.offset().top;
+  
+  card.bind('click', function (e) {
+    $('#screen').fadeIn(300);
+  });
+  
+  $('#get-started').bind('click', function (e) {
+    var windowHeight = $(window).height()
+      , scrollY = cardY - 0.5 * (windowHeight - cardHeight);
+    
+    console.log(scrollY);
+      
+    $('html, body').animate({
+      scrollTop: scrollY
+    }, 300);
+    $('#screen').fadeIn(300)
+  });
+
+});
+</script>
+{% endblock extra_js %}
