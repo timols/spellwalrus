@@ -56,13 +56,11 @@ $(function () {
   $('#get-started').bind('click', function (e) {
     var windowHeight = $(window).height()
       , scrollY = cardY - 0.5 * (windowHeight - cardHeight);
-    
-    console.log(scrollY);
       
     $('html, body').animate({
       scrollTop: scrollY
     }, 300);
-    $('#screen').fadeIn(300)
+    $('#screen').fadeIn(300);
   });
 
 });
