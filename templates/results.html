@@ -1,25 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Did you manage to spell the Walrus?</h2>
-
+<h1 style="text-align: left;">Did you spell the Walrus?</h1>
 
 {% for month in history.items %}
-<h3>{{ month.0 }}</h3>
+<h2>{{ month.0 }}</h2>
 
 <div class="month">
   {% for day in month.1 %}
-  {% ifequal day.day.0 0 %}
-    <div class="filler"></div>
-  {% else %}
-    <div>
-      {% if day.correct_response %}
-      Correct on {{ day.day.0 }}
-      {% else %}
-      FAIL! on {{ day.day.0 }}
+  <div class="{% ifequal day.day.0 0 %}filler {% endifequal %}{% ifequal day.day.1 5 %}saturday {% endifequal %}{% ifequal day.day.1 6 %}sunday {% endifequal %}">
+    {% ifnotequal day.day.0 0 %}
+      {{ day.day.0 }}.
+      {% if day.correct_response %}<div class="tick">✔</div>
       {% endif %}
-    </div>    
-  {% endifequal %}
+    {% endifnotequal %}
+  </div>    
   {% endfor %}{# day in month.1 #}
 </div>  
 {% endfor %}{# month in history.items #}
