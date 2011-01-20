@@ -1,3 +1,4 @@
+import calendar
 import cgi
 import datetime
 import os
@@ -62,12 +63,37 @@ class RegistrationSuccessHandler(webapp.RequestHandler):
 
 class ResultsHandler(webapp.RequestHandler):
     def get(self, user_id):
+        """
+        Show a calendar summary of the user's responses to wakeup calls
+        
+        !! This will explode in 2012
+        """
         user = User.get_by_id(int(user_id))
-        all_calls = Call.all().filter('user =', user)
-        correct_calls = Call.all().filter('user =', user) \
-                        .filter('correct_response =', True)
-        template_values = {'user': user, "calls": all_calls,
-                           'correct_calls': correct_calls
-        }
+        history = {}
+        calls = Call.all().filter('user =', user)
+        cal = calendar.Calendar()
+        
+        for call in calls:
+            if not call.correct_response:
+                continue
+            
+            call_month = call.created.strftime("%B")
+            
+            try:
+                month_history = history[call_month]
+            except KeyError:
+                month_history = history[call_month] = [
+                    {'day': d, 'correct_response': False} 
+                    for d in cal.itermonthdays2(2011, call.created.month)
+                ]
+                
+            for day_history in month_history:
+                if day_history['day'][0] == call.created.day:
+                    day_history['correct_response'] = True
+                    break
+                
+        
+        context = {'user': user, 'history': history}
         path = os.path.join(TEMPLATE_DIR, 'results.html')
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render(path, context))
+    

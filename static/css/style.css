@@ -83,3 +83,12 @@ a:hover { text-decoration: underline; }
   opacity: 0.8;
   display: none;
 }
+
+.month div {
+  width: 13%;
+  height: 40px;
+  background: #fff;
+  margin-right: 3px;
+  margin-bottom: 3px;
+  float: left;
+}
