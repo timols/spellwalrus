@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Did you manage to spell the Walrus?</h2>
+<p>You managed to get {{ correct_calls.count }} right out of {{ calls.count }} calls:</p>
+<div id='result_box'>
+    {% if calls %}
+        <ul>
+        {% for call in calls %}
+            <li>{{ call.correct_response }}@{{ call.created }}
+        {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock content %}
