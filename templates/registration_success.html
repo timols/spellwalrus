@@ -1,10 +1,9 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
-<h4>Thank you for registering.</h4>
+<h1>You're ready to go!</h1>
 
-<p>Your phone will ring momentarily, please answer to confirm your phone number.</p>
+<p>From now on, you'll get a wakeup call every weekday at {{ user.wakeup_time }}. You can change this by filling the form out again on the homepage, or stop the service by typing "stop" as the answer to any wakeup call.</p>
 
-<p>Once confirmed, you'll be able to view it at the following url <a href="{{ domain }}/{{ user_id }}">{{ domain }}/{{ user_id }}</a></p>
+<p>Your results will show up at <a href="{{ domain }}{{ user.history_url }}">{{ domain }}{{ user.history_url }}</a></p>
 {% endblock content %}

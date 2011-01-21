@@ -10,10 +10,13 @@ from users import views as registration_views
 def main():
     routes = [
     
-        ('/',                   registration_views.RegistrationHandler),
-        ('/success',    registration_views.RegistrationSuccessHandler),
+        ('/',               registration_views.RegistrationHandler),
         
-        (r'/(\d+)',             registration_views.ResultsHandler),
+        (r'/confirm',       registration_views.ConfirmationHandler),
+        (r'/success',       registration_views.SuccessHandler),
+        
+        (r'/(\d+)',         registration_views.ResultsHandler),
+        (r'/(\d+)/status',  registration_views.StatusHandler),
                                     
         ('/twilio/question',            calling_views.QuestionRenderer),
         ('/twilio/question/callback',   calling_views.QuestionResponder),

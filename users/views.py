@@ -5,6 +5,7 @@ import os
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
+from django.utils import simplejson
 
 from calling.models import Call
 
@@ -49,14 +50,46 @@ class RegistrationHandler(webapp.RequestHandler):
         user.put()
         validation_call_url = "%s/twilio/validation?user_key=%s" % \
                               (WALRUS_DOMAIN, user.key())
-        user.call(validation_call_url)
-        self.redirect("/success?user_id=%s" % user.key().id())
+        twilio_res = user.call(validation_call_url)
+        if twilio_res:
+            self.redirect("/confirm?user_id=%s" % user.key().id())
+        else:
+            self.redirect("/failurl")
         
         
-class RegistrationSuccessHandler(webapp.RequestHandler):
+class ConfirmationHandler(webapp.RequestHandler):
     def get(self):
+        """
+        The page telling the user to check her phone for confirmation
+        """
         user_id = cgi.escape(self.request.get('user_id'))
-        template_values = {'domain': WALRUS_DOMAIN, 'user_id': user_id}
+        user = User.get_by_id(int(user_id))
+        template_values = {'domain': WALRUS_DOMAIN, 'user': user}
+        path = os.path.join(TEMPLATE_DIR, 'registration_confirm.html')
+        self.response.out.write(template.render(path, template_values))
+        
+        
+class StatusHandler(webapp.RequestHandler):
+    def get(self, user_id):
+        """
+        Check the status of the user's confirmation, returning JSON
+        """
+        user = User.get_by_id(int(user_id))
+        if user.validated:
+            res = simplejson.dumps({'status': 'success'})
+            return self.response.out.write(res)
+            
+        return self.response.out.write(simplejson.dumps({'status': 'noupdate'}))
+        
+
+class SuccessHandler(webapp.RequestHandler):
+    def get(self):
+        """
+        User succeed
+        """
+        user_id = cgi.escape(self.request.get('user_id'))
+        user = User.get_by_id(int(user_id))
+        template_values = {'domain': WALRUS_DOMAIN, 'user': user}
         path = os.path.join(TEMPLATE_DIR, 'registration_success.html')
         self.response.out.write(template.render(path, template_values))
 

@@ -1,5 +1,6 @@
 To Do:
-   Standardize phone numbers to include country code
-x  Ensure phone number is unique (Done, by timols @ Jan 17, 2011 - 3:02pm)
-   Validate phone number
    Handle different time zones
+   Make users.views.ResultsHandler not explode in 2012
+   Organize/name templates better
+   
+   For checking status, consider the case of updating an existing user's details

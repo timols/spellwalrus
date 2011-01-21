@@ -14,7 +14,6 @@ class User(db.Model):
     """
     phone_number        = db.PhoneNumberProperty(required=True)
     wakeup_time         = db.TimeProperty(required=True)
-    include_weekends    = db.BooleanProperty(default=False)
     validated           = db.BooleanProperty(default=False)
     created             = db.DateTimeProperty(auto_now_add=True)
     edited              = db.DateTimeProperty(auto_now=True)
@@ -75,8 +74,12 @@ class User(db.Model):
             logging.info("with arguments:")
             [logging.info("%s: %s" % (k, v)) for k, v in data.items()]
             
-            account.request(request_url, 'POST', data)
+            return account.request(request_url, 'POST', data)
         except Exception, e:
             logging.error(e)
+    
+    def history_url(self):
+        return "/%s" % self.phone_number.replace('+', '')
+
         
 

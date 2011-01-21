@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<h1>Go check your telephone!</h1>
+
+<p>
+  We're calling you to make sure you entered the right
+  phone number. 
+</p>
+<p>
+  We wouldn't want you to set an alarm for your friend (or gosh,
+  somebody you don't even know) because they might get upset and we'd
+  feel responsible!
+</p>
+
+<h2 style="margin: 40px 0 0 80px;">Dialing {{ user.phone_number }} <span class="progress"></span></h2>
+
+{# <a href="/{{ user.id }}">{{ domain }}/{{ user.id }}</a></p> #}
+{% endblock content %}
+
+
+{% block extra_js %}
+<script type="text/javascript" charset="utf-8">
+$(function () {
+  var progressInterval  // Make the dots tick. Ostensible progress!
+    , statusInterval;   // Check the status of the confirmation call. Actual progress!!
+  
+  (function () {
+    // show progress
+    
+    var tick = 0 // a counter
+      , indicator = $('.progress')
+      , dots = '...'
+      , maxDots = dots.length + 1;
+    
+    progressInterval = setInterval(function () {
+      tick += 1;
+      indicator.html(dots.slice(0, tick % maxDots));
+    }, 600);    
+  })();
+  
+  (function () {
+    // check call status
+    var url = "/{{ user.key.id }}/status";
+    console.log(url);
+    
+    statusInterval = setInterval(function () {
+      $.getJSON(url, function (res) {
+        if (res.status === 'success') {
+          window.location = '/success?user_id=' + '{{ user.key.id }}';
+        }
+      });
+    }, 1000);
+    
+  })();
+  
+});
+</script>
+{% endblock extra_js %}
