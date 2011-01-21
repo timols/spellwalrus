@@ -95,13 +95,15 @@ class SuccessHandler(webapp.RequestHandler):
 
 
 class ResultsHandler(webapp.RequestHandler):
-    def get(self, user_id):
+    def get(self, phone_number):
         """
         Show a calendar summary of the user's responses to wakeup calls
         
         !! This will explode in 2012
         """
-        user = User.get_by_id(int(user_id))
+        user = User.all().filter('phone_number =', "+%s" % phone_number).get()
+        if user is None:
+            return self.error(404)
         history = {}
         calls = Call.all().filter('user =', user)
         cal = calendar.Calendar()
