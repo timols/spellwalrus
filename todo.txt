@@ -1,6 +1,7 @@
-To Do:
-   Handle different time zones
-   Make users.views.ResultsHandler not explode in 2012
-   Organize/name templates better
-   
-   For checking status, consider the case of updating an existing user's details
+Handle different time zones
+Make users.views.ResultsHandler not explode in 2012
+Organize/name templates better
+For checking status, consider the case of updating an existing user's details
+Failurl needs to be implemented for both registration and update
+Add stop (unsubscribe) mechanism to phone calls
+Custom 404 page

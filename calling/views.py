@@ -112,6 +112,10 @@ class ScheduledCallMaker(webapp.RequestHandler):
         """
         # for each scheduled call, get the number
         now = datetime.datetime.now()
+        
+        if now.isoweekday() in (6,7):
+            return
+        
         now_time = datetime.time(now.hour, now.minute)
         users = User.all().filter('wakeup_time =', now_time)
         
