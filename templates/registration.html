@@ -24,6 +24,8 @@
       <label for="phone_number">My telephone number is</label> 
       <input type="text" name="phone_number" value="" size="16" maxlength="16" />
     </div>
+    
+    <input type="hidden" name="timezone" />
 
     <input type="submit" value="thank you so much!" />
   </form>
@@ -41,9 +43,9 @@
 
 
 {% block extra_js %}
+<script type="text/javascript" src="/js/detect_timezone.js"></script>
 <script type="text/javascript" charset="utf-8">
 $(function () {
-  // $('#get-started')
   
   var card = $('#registration-card')
     , cardHeight = card.outerHeight()
@@ -62,6 +64,8 @@ $(function () {
     }, 300);
     $('#screen').fadeIn(300);
   });
+  
+  $("input[name='timezone']").val(TZ.determineTimezone().timezone.olson_tz);
 
 });
 </script>

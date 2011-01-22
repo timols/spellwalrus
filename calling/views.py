@@ -110,14 +110,14 @@ class ScheduledCallMaker(webapp.RequestHandler):
         Check if any calls are scheduled to be made this minute, 
         and if so, tell twilio to make them
         """
-        # for each scheduled call, get the number
         now = datetime.datetime.now()
         
         if now.isoweekday() in (6,7):
             return
         
         now_time = datetime.time(now.hour, now.minute)
-        users = User.all().filter('wakeup_time =', now_time)
+        lookback_time = datetime.time(now.hour, (now.minute - 5) % 60)
+        users = User.all().filter('wakeup_time <', now_time).filter('wakeup_time > lookback_time')
         
         # exclude users for which a call has recently been made
         users = filter(lambda u: not u.recently_called, users)

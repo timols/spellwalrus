@@ -29,8 +29,8 @@ class RegistrationHandler(webapp.RequestHandler):
         """
         Register a user for wakeup calls
         """
-        params = ('phone_number', 'wakeup_time', 'include_weekends')
-        phone_number, wakeup_time, include_weekends = [
+        params = ('phone_number', 'wakeup_time', 'timezone')
+        phone_number, wakeup_time, timezone = [
             cgi.escape(self.request.get(key)) for key in params
         ]
 
@@ -44,7 +44,7 @@ class RegistrationHandler(webapp.RequestHandler):
         user = User(**{
             'phone_number': phone_number, 
             'wakeup_time': parse_time(wakeup_time),
-            'include_weekends': bool(include_weekends)
+            'timezone': timezone
         })
 
         user.put()

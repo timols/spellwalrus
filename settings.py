@@ -1,6 +1,6 @@
 # Project-wide settings for this-is-a-walrus
 
-WALRUS_DOMAIN = "http://45xm.localtunnel.com"
+WALRUS_DOMAIN = "http://3btu.localtunnel.com"
 
 TWILIO_API_VERSION = '2010-04-01'
 

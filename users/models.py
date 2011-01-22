@@ -14,6 +14,7 @@ class User(db.Model):
     """
     phone_number        = db.PhoneNumberProperty(required=True)
     wakeup_time         = db.TimeProperty(required=True)
+    timezone            = db.StringProperty()
     validated           = db.BooleanProperty(default=False)
     created             = db.DateTimeProperty(auto_now_add=True)
     edited              = db.DateTimeProperty(auto_now=True)
@@ -33,7 +34,6 @@ class User(db.Model):
             user = users_for_number[0]
             # Valid user was found, so update the wake up call settings
             user.wakeup_time = user_for_key.wakeup_time
-            user.include_weekends = user_for_key.include_weekends
             user_for_key.delete()
         except IndexError:
             user = user_for_key
