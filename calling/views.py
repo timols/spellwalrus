@@ -116,7 +116,7 @@ class ScheduledCallMaker(webapp.RequestHandler):
             return
         
         now_time = datetime.time(now.hour, now.minute)
-        lookback_time = datetime.time(now.hour, (now.minute - 5) % 60)
+        lookback_time = now_time - datetime.timedelta(minutes=5)
         users = User.all().filter('wakeup_time <', now_time).filter('wakeup_time > lookback_time')
         
         # exclude users for which a call has recently been made
