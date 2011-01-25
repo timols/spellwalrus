@@ -15,19 +15,21 @@
     <div>
       <label for="wakeup_time">Please call and wake me at</label> 
       <select name="wakeup_time" size="1">
-        <option value="730">7:30 am</option>
-        <option value="800">8:00 am</option>
+        <option value="730"{% ifequal wakeup_time "730" %} selected="selected"{% endifequal %}>7:30 am</option>
+        <option value="800"{% ifequal wakeup_time "800" %} selected="selected"{% endifequal %}>8:00 am</option>
       </select>
     </div>
 
     <div>
       <label for="phone_number">My telephone number is</label> 
-      <input type="text" name="phone_number" value="" size="16" maxlength="16" />
+      <input type="text" id="phone-number" {% if error %}class="error" {% endif %}name="phone_number" {% if phone_number %}value="{{ phone_number }}" {% endif %}size="16" maxlength="16" />
+      
+      {% if error %}<div class="error">It looks like {{ error }}!</div>{% endif %}
     </div>
     
     <input type="hidden" name="timezone" />
 
-    <input type="submit" value="thank you so much!" />
+    <input type="submit" id="submit" value="thank you so much!" {% if error %}disabled="disabled"{% endif %} />
   </form>
 </div>
 
@@ -47,25 +49,56 @@
 <script type="text/javascript" charset="utf-8">
 $(function () {
   
+  // Use js to auto-fill timezone
+  var olsonTZ = TZ.determineTimezone().timezone.olson_tz;
+  $("input[name='timezone']").val(olsonTZ);
+  
+  // Prepare some flashy visual effects, for fun and profit!
   var card = $('#registration-card')
     , cardHeight = card.outerHeight()
     , cardY = card.offset().top;
   
-  card.bind('click', function (e) {
-    $('#screen').fadeIn(300);
-  });
+  var showScreen = function (duration) {
+    if (typeof duration === Number) {
+      $('#screen').fadeIn(duration);  
+    } else {
+      $('#screen').show();
+    }
+  };
   
-  $('#get-started').bind('click', function (e) {
+  var scrollToCard = function (duration) {
     var windowHeight = $(window).height()
       , scrollY = cardY - 0.5 * (windowHeight - cardHeight);
       
     $('html, body').animate({
       scrollTop: scrollY
-    }, 300);
-    $('#screen').fadeIn(300);
+    }, duration || 0);
+  };
+  
+  {% if error %}
+  
+  showScreen();
+  scrollToCard();
+  
+  $('#phone-number.error').bind('focus', function (e) {
+    $(this).removeClass('error').val('');
+  }).bind('keypress', function (e) {
+    $('#registration-card #submit').removeAttr('disabled');
+    $('div.error').css('opacity', '0.2');
   });
   
-  $("input[name='timezone']").val(TZ.determineTimezone().timezone.olson_tz);
+  {% else %} {# error #}
+  
+  card.bind('click', function (e) {
+    showScreen(300);
+  });
+  
+  $('#get-started').bind('click', function (e) {
+    scrollToCard(300);
+    showScreen(300);
+  });
+  
+  {% endif %}{# error #}
 
 });
 </script>

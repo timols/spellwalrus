@@ -2,6 +2,7 @@ import calendar
 import cgi
 import datetime
 import os
+import urllib
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -22,8 +23,7 @@ class RegistrationHandler(webapp.RequestHandler):
         Allow a user to submit their registration details such as phone
         number and wakeup time
         """
-        path = os.path.join(TEMPLATE_DIR, 'registration.html')
-        self.response.out.write(template.render(path, {}))
+        self.__render()
         
     def post(self):
         """
@@ -33,6 +33,10 @@ class RegistrationHandler(webapp.RequestHandler):
         phone_number, wakeup_time, timezone = [
             cgi.escape(self.request.get(key)) for key in params
         ]
+        
+        if not phone_number:
+            return self.__render({'wakeup_time': wakeup_time,
+                                  'error': 'you forgot to give us your number'})
 
         def parse_time(s):
             return {'730': datetime.time(7, 30),
@@ -41,11 +45,9 @@ class RegistrationHandler(webapp.RequestHandler):
         # Create a user for the given details. Validation of phone numbers
         # will occur through twilio, at which point we'll set the user's
         # `validated` attribute to true
-        user = User(**{
-            'phone_number': phone_number, 
-            'wakeup_time': parse_time(wakeup_time),
-            'timezone': timezone
-        })
+        user = User(**{'phone_number': phone_number, 
+                       'wakeup_time': parse_time(wakeup_time),
+                       'timezone': timezone})
 
         user.put()
         validation_call_url = "%s/twilio/validation?user_key=%s" % \
@@ -54,7 +56,13 @@ class RegistrationHandler(webapp.RequestHandler):
         if twilio_res:
             self.redirect("/confirm?user_id=%s" % user.key().id())
         else:
-            self.redirect("/failurl")
+            self.__render({'phone_number': phone_number,
+                           'wakeup_time': wakeup_time,
+                           'error': 'that number is invalid'})
+            
+    def __render(self, context={}):
+        path = os.path.join(TEMPLATE_DIR, 'registration.html')
+        self.response.out.write(template.render(path, context))
         
         
 class ConfirmationHandler(webapp.RequestHandler):

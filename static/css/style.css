@@ -76,13 +76,26 @@ a:hover { text-decoration: underline; }
   margin-bottom: 10px;
 }
 
-#registration-card input[type='text'] {
+#registration-card div.error {
+  color: rgba(139, 0, 0, 0.8);
+  font-family: "Courier New", monospace;
+  font-size: 16px;
+  line-height: 18px;
+  width: 80%;
+  margin-top: 10px;
+}
+
+#registration-card #phone-number {
   background: none;
   border: none;
   border-bottom: 2px dashed #454a40;
   padding: 0;
 }
-
+#registration-card #phone-number.error {
+  color: darkred;
+  background: rgba(139, 0, 0, 0.1);
+  border-color: darkred;
+}
 
 #screen { 
   position: fixed; 
@@ -112,3 +125,4 @@ a:hover { text-decoration: underline; }
   margin-left: 20px;
   margin-top: -10px;
 }
+
