@@ -4,15 +4,23 @@ runtime: python
 api_version: 1
 
 handlers:
-  -
-    url: /css
+  - url: /favicon\.ico
+    static_files: static/images/favicon.png
+    upload: static/images/favicon.png
+    mime_type: image/x-icon
+    expiration: 10000d
+
+  - url: /robots\.txt
+    static_files: static/robots.txt
+    upload: static/robots.txt
+    mime_type: text/plain
+    expiration: 10000d
+
+  - url: /css
     static_dir: static/css
-  -
-    url: /images
+  - url: /images
     static_dir: static/images
-  -
-    url: /js
+  - url: /js
     static_dir: static/js
-  - 
-    url: .*
+  - url: .*
     script: main.py

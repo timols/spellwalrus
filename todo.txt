@@ -1,12 +1,11 @@
 Handle different time zones
 For checking status, consider the case of updating an existing user's details
 Add stop (unsubscribe) mechanism to phone calls
-Custom 404 page
 Update the results template to show a calendar view even if there are no calls for that user
 
 LOW PRIORITY
+Custom 404 page
 Better styling of select and input[type='submit'] fields
-Favicon!
 Make users.views.ResultsHandler not explode in 2012
 Organize/name templates better
 Check firefox and safari rendering (IE is a lost cause on this one)
