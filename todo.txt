@@ -5,3 +5,4 @@ For checking status, consider the case of updating an existing user's details
 Failurl needs to be implemented for both registration and update
 Add stop (unsubscribe) mechanism to phone calls
 Custom 404 page
+Update the results template to show a calendar view even if there are no calls for that user
