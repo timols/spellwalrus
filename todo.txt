@@ -1,6 +1,5 @@
 Handle different time zones
 For checking status, consider the case of updating an existing user's details
-Add stop (unsubscribe) mechanism to phone calls
 Update the results template to show a calendar view even if there are no calls for that user
 
 LOW PRIORITY

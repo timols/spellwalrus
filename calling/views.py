@@ -9,7 +9,7 @@ from users.models import User
 
 from call_responses import WAKEUP_CALL, VALIDATION_CALL, \
     YOU_SPELLED_THE_WALRUS, THATS_NOT_HOW_YOU_SPELL_WALRUS, \
-    NUMBER_WAS_VALIDATED, NUMBER_WAS_NOT_VALIDATED
+    NUMBER_WAS_VALIDATED, NUMBER_WAS_NOT_VALIDATED, UNSUBSCRIBE
 from keywords import TODAYS_KEYWORD
 from models import Call
 from utils import chars_to_digits
@@ -63,6 +63,7 @@ class QuestionResponder(BaseHandler):
         except IndexError:
             return 'FAIL'
         
+        stop = (digits == chars_to_digits('stop'))
         correct = (digits == chars_to_digits(TODAYS_KEYWORD))
         
         call_record = Call(user=the_user, correct_response=correct)
@@ -71,10 +72,14 @@ class QuestionResponder(BaseHandler):
         if correct:
             res = YOU_SPELLED_THE_WALRUS
         else:
-            res = THATS_NOT_HOW_YOU_SPELL_WALRUS % {
-                'keyword': TODAYS_KEYWORD['word'],
-                'domain': WALRUS_DOMAIN
-            }
+            if stop:
+                the_user.delete()
+                res = UNSUBSCRIBE
+            else:
+                res = THATS_NOT_HOW_YOU_SPELL_WALRUS % {
+                    'keyword': TODAYS_KEYWORD['word'],
+                    'domain': WALRUS_DOMAIN
+                }
         self.response.out.write(res)
 
 
