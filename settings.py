@@ -1,4 +1,5 @@
 # Project-wide settings for this-is-a-walrus
+import os
 
 WALRUS_DOMAIN = "http://4dvr.localtunnel.com"
 
@@ -10,3 +11,5 @@ TWILIO_ACCOUNT_TOKEN = 'e9c6bedc9f1f029d4ff9ec8661e7a9e6'
 
 # Outgoing Caller ID previously validated with Twilio
 TWILIO_CALLER_ID = '(646) 450-2065';
+
+TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), 'templates')

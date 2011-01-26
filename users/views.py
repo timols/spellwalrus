@@ -4,20 +4,16 @@ import datetime
 import os
 import urllib
 
-from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from django.utils import simplejson
 
 from calling.models import Call
-
+from framework.handlers import BaseHandler
 from users.models import User
-from settings import WALRUS_DOMAIN
+from settings import WALRUS_DOMAIN, TEMPLATE_DIR
 
 
-TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), '..', 'templates')
-
-
-class RegistrationHandler(webapp.RequestHandler):
+class RegistrationHandler(BaseHandler):
     def get(self):
         """
         Allow a user to submit their registration details such as phone
@@ -65,7 +61,7 @@ class RegistrationHandler(webapp.RequestHandler):
         self.response.out.write(template.render(path, context))
         
         
-class ConfirmationHandler(webapp.RequestHandler):
+class ConfirmationHandler(BaseHandler):
     def get(self):
         """
         The page telling the user to check her phone for confirmation
@@ -77,7 +73,7 @@ class ConfirmationHandler(webapp.RequestHandler):
         self.response.out.write(template.render(path, template_values))
         
         
-class StatusHandler(webapp.RequestHandler):
+class StatusHandler(BaseHandler):
     def get(self, user_id):
         """
         Check the status of the user's confirmation, returning JSON
@@ -90,7 +86,7 @@ class StatusHandler(webapp.RequestHandler):
         return self.response.out.write(simplejson.dumps({'status': 'noupdate'}))
         
 
-class SuccessHandler(webapp.RequestHandler):
+class SuccessHandler(BaseHandler):
     def get(self):
         """
         User succeed
@@ -102,7 +98,7 @@ class SuccessHandler(webapp.RequestHandler):
         self.response.out.write(template.render(path, template_values))
 
 
-class ResultsHandler(webapp.RequestHandler):
+class ResultsHandler(BaseHandler):
     def get(self, phone_number):
         """
         Show a calendar summary of the user's responses to wakeup calls
@@ -111,7 +107,7 @@ class ResultsHandler(webapp.RequestHandler):
         """
         user = User.all().filter('phone_number =', "+%s" % phone_number).get()
         if user is None:
-            return self.error(404)
+            return self.http404()
         history = {}
         calls = Call.all().filter('user =', user)
         cal = calendar.Calendar()

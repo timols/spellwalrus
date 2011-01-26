@@ -2,12 +2,10 @@ import cgi
 import datetime
 import os
 
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp import template
-
-from users.models import User
+from framework.handlers import BaseHandler
 from libs import twilio
 from settings import WALRUS_DOMAIN
+from users.models import User
 
 from call_responses import WAKEUP_CALL, VALIDATION_CALL, \
     YOU_SPELLED_THE_WALRUS, THATS_NOT_HOW_YOU_SPELL_WALRUS, \
@@ -17,12 +15,9 @@ from models import Call
 from utils import chars_to_digits
 
 
-TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), 'templates')
-
-
 # TwiML Renderers - return TwiML to define a phone call when hit by twilio
 
-class QuestionRenderer(webapp.RequestHandler):
+class QuestionRenderer(BaseHandler):
     def post(self):
         """
         Tell twilio what question to say during the automated wakeup call,
@@ -37,7 +32,7 @@ class QuestionRenderer(webapp.RequestHandler):
         self.response.out.write(response)
 
 
-class ValidationRenderer(webapp.RequestHandler):
+class ValidationRenderer(BaseHandler):
     def post(self):
         """
         Validate the users phone number by a phone prompt before adding
@@ -52,7 +47,7 @@ class ValidationRenderer(webapp.RequestHandler):
 # TwiML Responders - callbacks hit by twilio during a phone call, as a 
 # consequence of user actions such as entering digits
         
-class QuestionResponder(webapp.RequestHandler):
+class QuestionResponder(BaseHandler):
     def get(self):
         """
         Determine whether the user correctly spelled the key word during
@@ -83,7 +78,7 @@ class QuestionResponder(webapp.RequestHandler):
         self.response.out.write(res)
 
 
-class ValidationResponder(webapp.RequestHandler):
+class ValidationResponder(BaseHandler):
     def post(self):
         """
         Determine whether the user correctly validated her phone number.
@@ -104,7 +99,7 @@ class ValidationResponder(webapp.RequestHandler):
         
 # Scheduled jobs
 
-class ScheduledCallMaker(webapp.RequestHandler):
+class ScheduledCallMaker(BaseHandler):
     def get(self):
         """
         Check if any calls are scheduled to be made this minute, 

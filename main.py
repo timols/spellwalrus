@@ -4,6 +4,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
 from calling import views as calling_views
+from framework.handlers import NotFoundHandler
 from users import views as registration_views
 
 
@@ -12,8 +13,8 @@ def main():
     
         ('/',               registration_views.RegistrationHandler),
         
-        (r'/confirm',       registration_views.ConfirmationHandler),
-        (r'/success',       registration_views.SuccessHandler),
+        ('/confirm',       registration_views.ConfirmationHandler),
+        ('/success',       registration_views.SuccessHandler),
         
         (r'/(\d+)',         registration_views.ResultsHandler),
         (r'/(\d+)/status',  registration_views.StatusHandler),
@@ -25,6 +26,8 @@ def main():
         ('/twilio/validation/callback', calling_views.ValidationResponder),
         
         ('/jobs/make-wakeup-calls', calling_views.ScheduledCallMaker),
+        
+        (r'/.*', NotFoundHandler),
     ]
 
     application = webapp.WSGIApplication(routes, debug=True)
