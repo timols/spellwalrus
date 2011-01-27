@@ -14,13 +14,13 @@
     
     <div>
       <label for="wakeup_hour">Please call and wake me at</label> 
-      <select name="wakeup_hour" size="1">
+      <select class="brown-button" name="wakeup_hour" size="1">
         {% for val in wakeup_hour_options %}
         <option value="{{ val }}"{% ifequal wakeup_hour val %} selected="selected"{% endifequal %}>{{ val }}</option>
         {% endfor %}
       </select>
       :
-      <select name="wakeup_minute" size="1">
+      <select class="brown-button" name="wakeup_minute" size="1">
         {% for val in wakeup_minute_options %}
         <option value="{{ val }}"{% ifequal wakeup_minute val %} selected="selected"{% endifequal %}>{{ val }}</option>
         {% endfor %}
@@ -37,7 +37,7 @@
     
     <input type="hidden" name="timezone" />
 
-    <input type="submit" id="submit" value="thank you so much!" {% if error %}disabled="disabled"{% endif %} />
+    <input type="submit" id="submit" class="brown-button" value="thank you so much!" {% if error %}disabled="disabled"{% endif %} />
     
     <div style="clear: both;"></div>
   </form>
@@ -66,14 +66,17 @@ $(function () {
   // Prepare some flashy visual effects, for fun and profit!
   var card = $('#registration-card')
     , cardHeight = card.outerHeight()
-    , cardY = card.offset().top;
+    , cardY = card.offset().top
+    , screenVisible = false; // ick! state!
   
   var showScreen = function (duration) {
+    if (screenVisible) { return; }
     if (typeof duration === Number) {
       $('#screen').fadeIn(duration);  
     } else {
       $('#screen').show();
     }
+    screenVisible = true;
   };
   
   var scrollToCard = function (duration) {
@@ -99,9 +102,8 @@ $(function () {
   
   {% else %} {# error #}
   
-  card.bind('click', function (e) {
-    showScreen(300);
-  });
+  card.bind('click', function (e) { showScreen(300); });
+  $('select').bind('focus', function (e) { showScreen(300); });
   
   $('#get-started').bind('click', function (e) {
     scrollToCard(300);

@@ -25,15 +25,12 @@ class RegistrationHandler(BaseHandler):
         """
         Register a user for wakeup calls
         """
-        params = {'phone_number': None, 'timezone': None 
+        params = {'phone_number': None, 'timezone': None, 
                   'wakeup_hour': None, 'wakeup_minute': None}
                   
         for k, v in params.items():
             params[k] = cgi.escape(self.request.get(k))
-            
-        params['wakeup_hour_options'] = [6, 7, 8, 9]
-        params['wakeup_minute_options'] = ['00', '15', '30', '45']
-        
+                    
         if not params['phone_number']:
             params['error'] = 'you forgot to give us your number'
             return self.__render(params)
@@ -41,7 +38,7 @@ class RegistrationHandler(BaseHandler):
         # Create a user for the given details. Validation of phone numbers
         # will occur through twilio, at which point we'll set the user's
         # `validated` attribute to true
-        wakeup_time = datetime.time(int(params['wakeup_hour'])
+        wakeup_time = datetime.time(int(params['wakeup_hour']),
                                     int(params['wakeup_minute']))
         user = User(**{'phone_number': params['phone_number'],
                        'wakeup_time': wakeup_time,
@@ -57,8 +54,11 @@ class RegistrationHandler(BaseHandler):
             params['error'] = 'that number is invalid'
             
     def __render(self, context={}):
+        options = {'wakeup_hour_options': [6, 7, 8, 9],
+                   'wakeup_minute_options': ['00', '15', '30', '45']}      
+        options.update(context)
         path = os.path.join(TEMPLATE_DIR, 'registration.html')
-        self.response.out.write(template.render(path, context))
+        self.response.out.write(template.render(path, options))
         
         
 class ConfirmationHandler(BaseHandler):

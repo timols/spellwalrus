@@ -3,7 +3,6 @@ For checking status, consider the case of updating an existing user's details
 Update the results template to show a calendar view even if there are no calls for that user
 
 LOW PRIORITY
-Better styling of select field
 Make users.views.ResultsHandler not explode in 2012
 Organize/name templates better
 Check firefox and safari rendering (IE is a lost cause on this one)
