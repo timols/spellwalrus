@@ -25,25 +25,27 @@ class RegistrationHandler(BaseHandler):
         """
         Register a user for wakeup calls
         """
-        params = ('phone_number', 'wakeup_time', 'timezone')
-        phone_number, wakeup_time, timezone = [
-            cgi.escape(self.request.get(key)) for key in params
-        ]
+        params = {'phone_number': None, 'timezone': None 
+                  'wakeup_hour': None, 'wakeup_minute': None}
+                  
+        for k, v in params.items():
+            params[k] = cgi.escape(self.request.get(k))
+            
+        params['wakeup_hour_options'] = [6, 7, 8, 9]
+        params['wakeup_minute_options'] = ['00', '15', '30', '45']
         
-        if not phone_number:
-            return self.__render({'wakeup_time': wakeup_time,
-                                  'error': 'you forgot to give us your number'})
+        if not params['phone_number']:
+            params['error'] = 'you forgot to give us your number'
+            return self.__render(params)
 
-        def parse_time(s):
-            return {'730': datetime.time(7, 30),
-                    '800': datetime.time(8, 00)}[s]
-        
         # Create a user for the given details. Validation of phone numbers
         # will occur through twilio, at which point we'll set the user's
         # `validated` attribute to true
-        user = User(**{'phone_number': phone_number, 
-                       'wakeup_time': parse_time(wakeup_time),
-                       'timezone': timezone})
+        wakeup_time = datetime.time(int(params['wakeup_hour'])
+                                    int(params['wakeup_minute']))
+        user = User(**{'phone_number': params['phone_number'],
+                       'wakeup_time': wakeup_time,
+                       'timezone': params['timezone']})
 
         user.put()
         validation_call_url = "%s/twilio/validation?user_key=%s" % \
@@ -52,9 +54,7 @@ class RegistrationHandler(BaseHandler):
         if twilio_res:
             self.redirect("/confirm?user_id=%s" % user.key().id())
         else:
-            self.__render({'phone_number': phone_number,
-                           'wakeup_time': wakeup_time,
-                           'error': 'that number is invalid'})
+            params['error'] = 'that number is invalid'
             
     def __render(self, context={}):
         path = os.path.join(TEMPLATE_DIR, 'registration.html')

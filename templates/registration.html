@@ -13,11 +13,19 @@
     <div>Dear Sir,</div>
     
     <div>
-      <label for="wakeup_time">Please call and wake me at</label> 
-      <select name="wakeup_time" size="1">
-        <option value="730"{% ifequal wakeup_time "730" %} selected="selected"{% endifequal %}>7:30 am</option>
-        <option value="800"{% ifequal wakeup_time "800" %} selected="selected"{% endifequal %}>8:00 am</option>
+      <label for="wakeup_hour">Please call and wake me at</label> 
+      <select name="wakeup_hour" size="1">
+        {% for val in wakeup_hour_options %}
+        <option value="{{ val }}"{% ifequal wakeup_hour val %} selected="selected"{% endifequal %}>{{ val }}</option>
+        {% endfor %}
       </select>
+      :
+      <select name="wakeup_minute" size="1">
+        {% for val in wakeup_minute_options %}
+        <option value="{{ val }}"{% ifequal wakeup_minute val %} selected="selected"{% endifequal %}>{{ val }}</option>
+        {% endfor %}
+      </select>
+      in the morning.
     </div>
 
     <div>
