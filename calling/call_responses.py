@@ -7,6 +7,7 @@ WAKEUP_CALL = """<Response>
         <Say>Spell the word %(keyword)s.</Say>
         <Say>%(sentence)s</Say>
         <Say>Spell %(keyword)s.</Say>
+        <Say>If you wish to unsubscribe, please spell STOP</say>
     </Gather>
 </Response>"""
 
@@ -40,5 +41,10 @@ NUMBER_WAS_NOT_VALIDATED = """<Response>
     <Gather action="%(domain)s/twilio/validation/callback?user_key=%(user_key)s" method="POST" timeout="5">
         <Say>Something went wrong. Please confirm your phone number by pressing 1, followed by the pound sign</Say>
     </Gather>
+</Response>
+"""
+
+UNSUBSCRIBE = """<Response>
+    <Say>Thank you, you have been removed from our service. Come back any time!</Say>
 </Response>
 """
