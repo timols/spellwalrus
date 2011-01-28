@@ -3,7 +3,6 @@
 {% block content %}
 <h1 style="text-align: left;">Did you spell the Walrus?</h1>
 
-<p>To unsubscribe, spell "stop" on your keypad during your next wake up call</p>
 
 {% for month in history.items %}
 <h2>{{ month.0 }}</h2>
@@ -20,5 +19,7 @@
   {% endfor %}{# day in month.1 #}
 </div>  
 {% endfor %}{# month in history.items #}
+
+<p>To unsubscribe, spell "stop" on your keypad during your next wake up call</p>
 
 {% endblock content %}

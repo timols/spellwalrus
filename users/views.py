@@ -131,7 +131,11 @@ class ResultsHandler(BaseHandler):
         # If there is nothing in the history, add the current month to
         # ensure that at least one month is rendered
         if len(history) == 0:
-            history[datetime.datetime.now().strftime("%B")] = !!!!!!
+            now = datetime.datetime.now()
+            history[now.strftime("%B")] = [
+                {'day': d, 'correct_response': False} 
+                for d in cal.itermonthdays2(2011, now.month)
+            ]
                 
         context = {'user': user, 'history': history}
         path = os.path.join(TEMPLATE_DIR, 'results.html')
