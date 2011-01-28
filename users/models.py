@@ -3,7 +3,7 @@ import logging
 
 from google.appengine.ext import db
 
-from libs import twilio
+from libs import twilio, pytz
 from settings import TWILIO_ACCOUNT_SID, TWILIO_ACCOUNT_TOKEN, \
     TWILIO_CALLER_ID, TWILIO_API_VERSION
 
@@ -80,6 +80,10 @@ class User(db.Model):
     
     def history_url(self):
         return "/%s" % self.phone_number.replace('+', '')
-
         
-
+    def is_local_weekend(self):
+        utc = pytz.utc
+        tz = pytz.timezone(self.timezone)
+        now = datetime.datetime.now()
+        local_now = utc.localize(now).astimezone(tz)
+        return local_now.isoweekdays() in (6, 7)

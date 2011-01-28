@@ -3,7 +3,7 @@
 {% block content %}
 <h1>You're ready to go!</h1>
 
-<p>From now on, you'll get a wakeup call every weekday at {{ user.wakeup_time }}. You can change this by filling the form out again on the homepage, or stop the service by typing "stop" as the answer to any wakeup call.</p>
+<p>From now on, you'll get a wakeup call every weekday at {{ local_time }}. You can change this by filling the form out again on the homepage, or stop the service by typing "stop" as the answer to any wakeup call.</p>
 
 <p>Your results will show up at <a href="{{ domain }}{{ user.history_url }}">{{ domain }}{{ user.history_url }}</a></p>
 {% endblock content %}

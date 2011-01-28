@@ -7,7 +7,7 @@ WAKEUP_CALL = """<Response>
         <Say>Spell the word %(keyword)s.</Say>
         <Say>%(sentence)s</Say>
         <Say>Spell %(keyword)s.</Say>
-        <Say>If you wish to unsubscribe, please spell STOP</say>
+        <Say>If you wish to unsubscribe, please spell STOP</Say>
     </Gather>
 </Response>"""
 
