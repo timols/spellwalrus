@@ -89,7 +89,7 @@ a:hover { text-decoration: underline; }
   background: rgba(164, 136, 68, 0.1);
   border: none;
   border-bottom: 2px dashed #454a40;
-  padding: 0;
+  padding: 0 15px;
 }
 #registration-card #phone-number.error {
   color: darkred;
