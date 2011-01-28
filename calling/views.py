@@ -23,13 +23,10 @@ class QuestionRenderer(BaseHandler):
         Tell twilio what question to say during the automated wakeup call,
         for instance "Please spell WALRUS".
         """
-        self.response.headers['Content-Type'] = 'application/xml'
-        response = WAKEUP_CALL % {
-            'domain': WALRUS_DOMAIN, 
-            'keyword': TODAYS_KEYWORD['word'],
-            'sentence': TODAYS_KEYWORD['sentence']
-        }
-        self.response.out.write(response)
+        res = WAKEUP_CALL % {'domain': WALRUS_DOMAIN, 
+                             'keyword': TODAYS_KEYWORD['word'],
+                             'sentence': TODAYS_KEYWORD['sentence']}
+        return self.return_XML(res)
 
 
 class ValidationRenderer(BaseHandler):
@@ -39,10 +36,9 @@ class ValidationRenderer(BaseHandler):
         to the datastore
         """
         key = cgi.escape(self.request.get('user_key'))
-        self.response.headers['Content-Type'] = 'application/xml'
-        response = VALIDATION_CALL % {'domain': WALRUS_DOMAIN, 'user_key': key}
-        self.response.out.write(response)
-        
+        res = VALIDATION_CALL % {'domain': WALRUS_DOMAIN, 'user_key': key}
+        return self.return_XML(res)
+    
         
 # TwiML Responders - callbacks hit by twilio during a phone call, as a 
 # consequence of user actions such as entering digits
@@ -80,7 +76,7 @@ class QuestionResponder(BaseHandler):
                     'keyword': TODAYS_KEYWORD['word'],
                     'domain': WALRUS_DOMAIN
                 }
-        self.response.out.write(res)
+        return self.return_XML(res)
 
 
 class ValidationResponder(BaseHandler):
@@ -94,13 +90,13 @@ class ValidationResponder(BaseHandler):
         if digits != '1':
             res = NUMBER_WAS_NOT_VALIDATED % \
                   {'user_key': user_key, 'domain': WALRUS_DOMAIN}
-            return self.response.out.write(res)
+            return self.return_XML(res)
         
         # Validation is complete, so save/update user details
         user = User.find_or_validate(to, user_key)
 
-        self.response.out.write(NUMBER_WAS_VALIDATED)
-        
+        return self.return_XML(NUMBER_WAS_VALIDATED)
+
         
 # Scheduled jobs
 

@@ -65,18 +65,26 @@ $(function () {
   
   // Prepare some flashy visual effects, for fun and profit!
   var card = $('#registration-card')
+    , screen = $('#screen')
     , cardHeight = card.outerHeight()
     , cardY = card.offset().top
+    , animationDuration = 300
     , screenVisible = false; // ick! state!
   
   var showScreen = function (duration) {
     if (screenVisible) { return; }
-    if (typeof duration === Number) {
-      $('#screen').fadeIn(duration);  
+    if (typeof duration === 'number') {
+      screen.fadeIn(duration);  
     } else {
-      $('#screen').show();
+      screen.show();
     }
     screenVisible = true;
+  };
+  
+  var hideScreen = function () {
+    if (!screenVisible) { return; }
+    screen.hide();
+    screenVisible = false;
   };
   
   var scrollToCard = function (duration) {
@@ -102,15 +110,17 @@ $(function () {
   
   {% else %} {# error #}
   
-  card.bind('click', function (e) { showScreen(300); });
-  $('select').bind('focus', function (e) { showScreen(300); });
+  card.bind('click', function (e) { showScreen(animationDuration); });
+  $('select').bind('focus', function (e) { showScreen(animationDuration); });
   
   $('#get-started').bind('click', function (e) {
-    scrollToCard(300);
-    showScreen(300);
+    scrollToCard(animationDuration);
+    showScreen(animationDuration);
   });
   
   {% endif %}{# error #}
+  
+  screen.bind('click', hideScreen);
 
 });
 </script>

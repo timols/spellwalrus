@@ -1,6 +1,5 @@
 Handle different time zones
 For checking status, consider the case of updating an existing user's details
-Update the results template to show a calendar view even if there are no calls for that user
 
 LOW PRIORITY
 Make users.views.ResultsHandler not explode in 2012

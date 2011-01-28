@@ -6,3 +6,4 @@ def chars_to_digits(word):
     keypad_mapping = dict(zip(string.ascii_lowercase, 
                               "22233344455566677778889999"))
     return ''.join(str(keypad_mapping[l]) for l in word.lower())
+    
