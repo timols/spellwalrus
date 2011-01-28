@@ -38,7 +38,7 @@ class ValidationRenderer(BaseHandler):
         Validate the users phone number by a phone prompt before adding
         to the datastore
         """
-        key = self.request.get('user_key')
+        key = cgi.escape(self.request.get('user_key'))
         self.response.headers['Content-Type'] = 'application/xml'
         response = VALIDATION_CALL % {'domain': WALRUS_DOMAIN, 'user_key': key}
         self.response.out.write(response)

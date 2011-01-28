@@ -6,6 +6,7 @@ import urllib
 
 from google.appengine.ext.webapp import template
 from django.utils import simplejson
+from libs import pytz
 
 from calling.models import Call
 from framework.handlers import BaseHandler
@@ -38,8 +39,11 @@ class RegistrationHandler(BaseHandler):
         # Create a user for the given details. Validation of phone numbers
         # will occur through twilio, at which point we'll set the user's
         # `validated` attribute to true
-        wakeup_time = datetime.time(int(params['wakeup_hour']),
-                                    int(params['wakeup_minute']))
+        tz = pytz.timezone(params['timezone'])
+        user_time = datetime.datetime(1970, 1, 1,
+                      int(params['wakeup_hour']),
+                      int(params['wakeup_minute']))
+        wakeup_time = tz.localize(user_time).astimezone(pytz.utc).time()
         user = User(**{'phone_number': params['phone_number'],
                        'wakeup_time': wakeup_time,
                        'timezone': params['timezone']})
@@ -93,7 +97,12 @@ class SuccessHandler(BaseHandler):
         """
         user_id = cgi.escape(self.request.get('user_id'))
         user = User.get_by_id(int(user_id))
-        template_values = {'domain': WALRUS_DOMAIN, 'user': user}
+        tz = pytz.timezone(user.timezone)
+        proper_time = datetime.datetime(1970,1,1,user.wakeup_time.hour,
+                      user.wakeup_time.minute)
+        local_time = pytz.utc.localize(proper_time).astimezone(tz).time()
+        template_values = {'domain': WALRUS_DOMAIN, 'user': user,
+                           'local_time': local_time}
         path = os.path.join(TEMPLATE_DIR, 'registration_success.html')
         self.response.out.write(template.render(path, template_values))
 
