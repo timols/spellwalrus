@@ -112,12 +112,12 @@ class ScheduledCallMaker(BaseHandler):
         """
         now = datetime.datetime.now()
         
-        if now.isoweekday() in (6,7):
-            return
-        
-        now_time = datetime.time(now.hour, now.minute)
+        now_time = now.time()
         lookback_time = now_time - datetime.timedelta(minutes=5)
         users = User.all().filter('wakeup_time <', now_time).filter('wakeup_time >', lookback_time)
+        
+        # exclude users for which their timezone puts them in a weekend
+        users = filter(lambda u: not u.is_local_weekend, users)
         
         # exclude users for which a call has recently been made
         users = filter(lambda u: not u.recently_called, users)
