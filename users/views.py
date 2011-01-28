@@ -5,7 +5,6 @@ import os
 import urllib
 
 from google.appengine.ext.webapp import template
-from django.utils import simplejson
 
 from calling.models import Call
 from framework.handlers import BaseHandler
@@ -79,11 +78,8 @@ class StatusHandler(BaseHandler):
         Check the status of the user's confirmation, returning JSON
         """
         user = User.get_by_id(int(user_id))
-        if user.validated:
-            res = simplejson.dumps({'status': 'success'})
-            return self.response.out.write(res)
-            
-        return self.response.out.write(simplejson.dumps({'status': 'noupdate'}))
+        status = user.validated and 'success' or 'noupdate'
+        return self.write_JSON({'status': status})
         
 
 class SuccessHandler(BaseHandler):
@@ -110,6 +106,7 @@ class ResultsHandler(BaseHandler):
             return self.http404()
         history = {}
         calls = Call.all().filter('user =', user)
+        
         cal = calendar.Calendar()
         
         for call in calls:
@@ -130,8 +127,12 @@ class ResultsHandler(BaseHandler):
                 if day_history['day'][0] == call.created.day:
                     day_history['correct_response'] = True
                     break
+                    
+        # If there is nothing in the history, add the current month to
+        # ensure that at least one month is rendered
+        if len(history) == 0:
+            history[datetime.datetime.now().strftime("%B")] = !!!!!!
                 
-        
         context = {'user': user, 'history': history}
         path = os.path.join(TEMPLATE_DIR, 'results.html')
         self.response.out.write(template.render(path, context))

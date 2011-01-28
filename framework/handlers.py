@@ -1,5 +1,6 @@
 import os
 
+from django.utils import simplejson
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 
@@ -20,6 +21,10 @@ class BaseHandler(webapp.RequestHandler):
         self.error(404)
         path = os.path.join(TEMPLATE_DIR, '404.html')
         self.response.out.write(template.render(path, {}))
+        
+    def write_JSON(obj):
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(simplejson.dumps(obj))
         
         
 class NotFoundHandler(BaseHandler):
