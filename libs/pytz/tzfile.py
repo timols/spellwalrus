@@ -7,8 +7,8 @@ from cStringIO import StringIO
 from datetime import datetime, timedelta
 from struct import unpack, calcsize
 
-from tzinfo import StaticTzInfo, DstTzInfo, memorized_ttinfo
-from tzinfo import memorized_datetime, memorized_timedelta
+from pytz.tzinfo import StaticTzInfo, DstTzInfo, memorized_ttinfo
+from pytz.tzinfo import memorized_datetime, memorized_timedelta
 
 
 def build_tzinfo(zone, fp):

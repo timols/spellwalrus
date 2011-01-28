@@ -7,7 +7,7 @@ try:
 except NameError:
     from sets import Set as set
 
-import libs
+import pytz
 
 __all__ = []
 
@@ -75,28 +75,16 @@ class StaticTzInfo(BaseTzInfo):
         '''See datetime.tzinfo.fromutc'''
         return (dt + self._utcoffset).replace(tzinfo=self)
 
-    def utcoffset(self, dt, is_dst=None):
-        '''See datetime.tzinfo.utcoffset
-
-        is_dst is ignored for StaticTzInfo, and exists only to
-        retain compatibility with DstTzInfo.
-        '''
+    def utcoffset(self,dt):
+        '''See datetime.tzinfo.utcoffset'''
         return self._utcoffset
 
-    def dst(self, dt, is_dst=None):
-        '''See datetime.tzinfo.dst
-
-        is_dst is ignored for StaticTzInfo, and exists only to
-        retain compatibility with DstTzInfo.
-        '''
+    def dst(self,dt):
+        '''See datetime.tzinfo.dst'''
         return _notime
 
-    def tzname(self, dt, is_dst=None):
-        '''See datetime.tzinfo.tzname
-
-        is_dst is ignored for StaticTzInfo, and exists only to
-        retain compatibility with DstTzInfo.
-        '''
+    def tzname(self,dt):
+        '''See datetime.tzinfo.tzname'''
         return self._tzname
 
     def localize(self, dt, is_dst=False):
@@ -337,108 +325,17 @@ class DstTzInfo(BaseTzInfo):
         filtered_possible_loc_dt.sort(mycmp)
         return filtered_possible_loc_dt[0]
 
-    def utcoffset(self, dt, is_dst=None):
-        '''See datetime.tzinfo.utcoffset
+    def utcoffset(self, dt):
+        '''See datetime.tzinfo.utcoffset'''
+        return self._utcoffset
 
-        The is_dst parameter may be used to remove ambiguity during DST
-        transitions.
+    def dst(self, dt):
+        '''See datetime.tzinfo.dst'''
+        return self._dst
 
-        >>> from pytz import timezone
-        >>> tz = timezone('America/St_Johns')
-        >>> ambiguous = datetime(2009, 10, 31, 23, 30)
-
-        >>> tz.utcoffset(ambiguous, is_dst=False)
-        datetime.timedelta(-1, 73800)
-
-        >>> tz.utcoffset(ambiguous, is_dst=True)
-        datetime.timedelta(-1, 77400)
-
-        >>> tz.utcoffset(ambiguous)
-        Traceback (most recent call last):
-        [...]
-        AmbiguousTimeError: 2009-10-31 23:30:00
-        '''
-        if dt is None:
-            return None
-        elif dt.tzinfo is not self:
-            dt = self.localize(dt, is_dst)
-            return dt.tzinfo._utcoffset
-        else:
-            return self._utcoffset
-
-    def dst(self, dt, is_dst=None):
-        '''See datetime.tzinfo.dst
-
-        The is_dst parameter may be used to remove ambiguity during DST
-        transitions.
-
-        >>> from pytz import timezone
-        >>> tz = timezone('America/St_Johns')
-
-        >>> normal = datetime(2009, 9, 1)
-
-        >>> tz.dst(normal)
-        datetime.timedelta(0, 3600)
-        >>> tz.dst(normal, is_dst=False)
-        datetime.timedelta(0, 3600)
-        >>> tz.dst(normal, is_dst=True)
-        datetime.timedelta(0, 3600)
-
-        >>> ambiguous = datetime(2009, 10, 31, 23, 30)
-
-        >>> tz.dst(ambiguous, is_dst=False)
-        datetime.timedelta(0)
-        >>> tz.dst(ambiguous, is_dst=True)
-        datetime.timedelta(0, 3600)
-        >>> tz.dst(ambiguous)
-        Traceback (most recent call last):
-        [...]
-        AmbiguousTimeError: 2009-10-31 23:30:00
-        '''
-        if dt is None:
-            return None
-        elif dt.tzinfo is not self:
-            dt = self.localize(dt, is_dst)
-            return dt.tzinfo._dst
-        else:
-            return self._dst
-
-    def tzname(self, dt, is_dst=None):
-        '''See datetime.tzinfo.tzname
-
-        The is_dst parameter may be used to remove ambiguity during DST
-        transitions.
-
-        >>> from pytz import timezone
-        >>> tz = timezone('America/St_Johns')
-
-        >>> normal = datetime(2009, 9, 1)
-
-        >>> tz.tzname(normal)
-        'NDT'
-        >>> tz.tzname(normal, is_dst=False)
-        'NDT'
-        >>> tz.tzname(normal, is_dst=True)
-        'NDT'
-
-        >>> ambiguous = datetime(2009, 10, 31, 23, 30)
-
-        >>> tz.tzname(ambiguous, is_dst=False)
-        'NST'
-        >>> tz.tzname(ambiguous, is_dst=True)
-        'NDT'
-        >>> tz.tzname(ambiguous)
-        Traceback (most recent call last):
-        [...]
-        AmbiguousTimeError: 2009-10-31 23:30:00
-        '''
-        if dt is None:
-            return self.zone
-        elif dt.tzinfo is not self:
-            dt = self.localize(dt, is_dst)
-            return dt.tzinfo._tzname
-        else:
-            return self._tzname
+    def tzname(self, dt):
+        '''See datetime.tzinfo.tzname'''
+        return self._tzname
 
     def __repr__(self):
         if self._dst:

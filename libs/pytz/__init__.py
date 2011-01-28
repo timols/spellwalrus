@@ -9,7 +9,7 @@ on how to use these modules.
 '''
 
 # The Olson database is updated several times a year.
-OLSON_VERSION = '2010o'
+OLSON_VERSION = '2010h'
 VERSION = OLSON_VERSION
 # Version format for a patch release - only one so far.
 #VERSION = OLSON_VERSION + '.2'
@@ -23,10 +23,12 @@ __all__ = [
     'NonExistentTimeError', 'UnknownTimeZoneError',
     'all_timezones', 'all_timezones_set',
     'common_timezones', 'common_timezones_set',
+    'loader',
     ]
 
 import sys, datetime, os.path, gettext
 from UserDict import DictMixin
+from UserList import UserList
 
 try:
     from pkg_resources import resource_stream
@@ -43,34 +45,48 @@ try:
 except NameError:
     from sets import Set as set
 
+class TimezoneLoader(object):
+    def __init__(self):
+        self.available = {}
+
+    def open_resource(self, name):
+        """Open a resource from the zoneinfo subdir for reading.
+
+        Uses the pkg_resources module if available and no standard file
+        found at the calculated location.
+        """
+        name_parts = name.lstrip('/').split('/')
+        for part in name_parts:
+            if part == os.path.pardir or os.path.sep in part:
+                raise ValueError('Bad path segment: %r' % part)
+        filename = os.path.join(os.path.dirname(__file__),
+                                'zoneinfo', *name_parts)
+        if not os.path.exists(filename) and resource_stream is not None:
+            # http://bugs.launchpad.net/bugs/383171 - we avoid using this
+            # unless absolutely necessary to help when a broken version of
+            # pkg_resources is installed.
+            return resource_stream(__name__, 'zoneinfo/' + name)
+        return open(filename, 'rb')
+
+
+    def resource_exists(self, name):
+        """Return true if the given resource exists"""
+        if name not in self.available:
+            try:
+                self.open_resource(name)
+                self.available[name] = True
+            except IOError:
+                self.available[name] = False
+
+        return self.available[name]
+
+loader = TimezoneLoader()
 
 def open_resource(name):
-    """Open a resource from the zoneinfo subdir for reading.
-
-    Uses the pkg_resources module if available and no standard file
-    found at the calculated location.
-    """
-    name_parts = name.lstrip('/').split('/')
-    for part in name_parts:
-        if part == os.path.pardir or os.path.sep in part:
-            raise ValueError('Bad path segment: %r' % part)
-    filename = os.path.join(os.path.dirname(__file__),
-                            'zoneinfo', *name_parts)
-    if not os.path.exists(filename) and resource_stream is not None:
-        # http://bugs.launchpad.net/bugs/383171 - we avoid using this
-        # unless absolutely necessary to help when a broken version of
-        # pkg_resources is installed.
-        return resource_stream(__name__, 'zoneinfo/' + name)
-    return open(filename, 'rb')
-
+    return loader.open_resource(name)
 
 def resource_exists(name):
-    """Return true if the given resource exists"""
-    try:
-        open_resource(name)
-        return True
-    except IOError:
-        return False
+    return loader.resource_exists(name)
 
 
 # Enable this when we get some translations?
@@ -78,7 +94,7 @@ def resource_exists(name):
 # module, as well as the Zope3 i18n package. Perhaps we should just provide
 # the POT file and translations, and leave it up to callers to make use
 # of them.
-# 
+#
 # t = gettext.translation(
 #         'pytz', os.path.join(os.path.dirname(__file__), 'locales'),
 #         fallback=True
@@ -107,7 +123,7 @@ class UnknownTimeZoneError(KeyError):
 _tzinfo_cache = {}
 
 def timezone(zone):
-    r''' Return a datetime.tzinfo implementation for the given timezone 
+    r''' Return a datetime.tzinfo implementation for the given timezone
 
     >>> from datetime import datetime, timedelta
     >>> utc = timezone('UTC')
@@ -151,7 +167,7 @@ def timezone(zone):
 
     zone = _unmunge_zone(zone)
     if zone not in _tzinfo_cache:
-        if zone in all_timezones_set:
+        if resource_exists(zone):
             _tzinfo_cache[zone] = build_tzinfo(zone, open_resource(zone))
         else:
             raise UnknownTimeZoneError(zone)
@@ -179,10 +195,6 @@ class UTC(datetime.tzinfo):
     instances.
     """
     zone = "UTC"
-
-    _utcoffset = ZERO
-    _dst = ZERO
-    _tzname = zone
 
     def utcoffset(self, dt):
         return ZERO
@@ -221,7 +233,7 @@ UTC = utc = UTC() # UTC is a singleton
 def _UTC():
     """Factory function for utc unpickling.
 
-    Makes sure that unpickling a utc instance always returns the same 
+    Makes sure that unpickling a utc instance always returns the same
     module global.
 
     These examples belong in the UTC class above, but it is obscured; or in
@@ -275,6 +287,18 @@ class _LazyDict(DictMixin):
         return self.data.keys()
 
 
+class _LazyList(UserList):
+    def __init__(self, func):
+        self._data = None
+        self._build = func
+
+    def data(self):
+        if self._data is None:
+            self._data = self._build()
+        return self._data
+
+    data = property(data)
+
 class _CountryTimezoneDict(_LazyDict):
     """Map ISO 3166 country code to a list of timezone names commonly used
     in that country.
@@ -309,7 +333,7 @@ class _CountryTimezoneDict(_LazyDict):
             if line.startswith('#'):
                 continue
             code, coordinates, zone = line.split(None, 4)[:3]
-            if zone not in all_timezones_set:
+            if not resource_exists(zone):
                 continue
             try:
                 data[code].append(zone)
@@ -358,7 +382,7 @@ class _FixedOffset(datetime.tzinfo):
         return FixedOffset, (self._minutes, )
 
     def dst(self, dt):
-        return ZERO
+        return None
 
     def tzname(self, dt):
         return None
@@ -387,16 +411,12 @@ def FixedOffset(offset, _tzinfos = {}):
         pytz.FixedOffset(-330)
         >>> one.utcoffset(datetime.datetime.now())
         datetime.timedelta(-1, 66600)
-        >>> one.dst(datetime.datetime.now())
-        datetime.timedelta(0)
 
         >>> two = FixedOffset(1380)
         >>> two
         pytz.FixedOffset(1380)
         >>> two.utcoffset(datetime.datetime.now())
         datetime.timedelta(0, 82800)
-        >>> two.dst(datetime.datetime.now())
-        datetime.timedelta(0)
 
     The datetime.timedelta must be between the range of -1 and 1 day,
     non-inclusive.
@@ -457,7 +477,7 @@ def _test():
 if __name__ == '__main__':
     _test()
 
-all_timezones = \
+all_timezones_unfiltered = \
 ['Africa/Abidjan',
  'Africa/Accra',
  'Africa/Addis_Ababa',
@@ -534,7 +554,6 @@ all_timezones = \
  'America/Atikokan',
  'America/Atka',
  'America/Bahia',
- 'America/Bahia_Banderas',
  'America/Barbados',
  'America/Belem',
  'America/Belize',
@@ -607,7 +626,6 @@ all_timezones = \
  'America/Manaus',
  'America/Marigot',
  'America/Martinique',
- 'America/Matamoros',
  'America/Mazatlan',
  'America/Mendoza',
  'America/Menominee',
@@ -626,7 +644,6 @@ all_timezones = \
  'America/Noronha',
  'America/North_Dakota/Center',
  'America/North_Dakota/New_Salem',
- 'America/Ojinaga',
  'America/Panama',
  'America/Pangnirtung',
  'America/Paramaribo',
@@ -643,7 +660,6 @@ all_timezones = \
  'America/Resolute',
  'America/Rio_Branco',
  'America/Rosario',
- 'America/Santa_Isabel',
  'America/Santarem',
  'America/Santiago',
  'America/Santo_Domingo',
@@ -672,7 +688,6 @@ all_timezones = \
  'Antarctica/Casey',
  'Antarctica/Davis',
  'Antarctica/DumontDUrville',
- 'Antarctica/Macquarie',
  'Antarctica/Mawson',
  'Antarctica/McMurdo',
  'Antarctica/Palmer',
@@ -961,7 +976,6 @@ all_timezones = \
  'Pacific/Apia',
  'Pacific/Auckland',
  'Pacific/Chatham',
- 'Pacific/Chuuk',
  'Pacific/Easter',
  'Pacific/Efate',
  'Pacific/Enderbury',
@@ -987,7 +1001,6 @@ all_timezones = \
  'Pacific/Pago_Pago',
  'Pacific/Palau',
  'Pacific/Pitcairn',
- 'Pacific/Pohnpei',
  'Pacific/Ponape',
  'Pacific/Port_Moresby',
  'Pacific/Rarotonga',
@@ -1025,11 +1038,14 @@ all_timezones = \
  'W-SU',
  'WET',
  'Zulu']
-all_timezones = [
-        tz for tz in all_timezones if resource_exists(tz)]
-        
-all_timezones_set = set(all_timezones)
-common_timezones = \
+
+all_timezones = _LazyList(
+        lambda: filter(resource_exists, all_timezones_unfiltered)
+)
+
+all_timezones_set = set(all_timezones_unfiltered) # XXX
+
+common_timezones_unfiltered = \
 ['Africa/Abidjan',
  'Africa/Accra',
  'Africa/Addis_Ababa',
@@ -1102,7 +1118,6 @@ common_timezones = \
  'America/Asuncion',
  'America/Atikokan',
  'America/Bahia',
- 'America/Bahia_Banderas',
  'America/Barbados',
  'America/Belem',
  'America/Belize',
@@ -1163,9 +1178,7 @@ common_timezones = \
  'America/Maceio',
  'America/Managua',
  'America/Manaus',
- 'America/Marigot',
  'America/Martinique',
- 'America/Matamoros',
  'America/Mazatlan',
  'America/Menominee',
  'America/Merida',
@@ -1183,7 +1196,6 @@ common_timezones = \
  'America/Noronha',
  'America/North_Dakota/Center',
  'America/North_Dakota/New_Salem',
- 'America/Ojinaga',
  'America/Panama',
  'America/Pangnirtung',
  'America/Paramaribo',
@@ -1198,14 +1210,11 @@ common_timezones = \
  'America/Regina',
  'America/Resolute',
  'America/Rio_Branco',
- 'America/Santa_Isabel',
  'America/Santarem',
  'America/Santiago',
  'America/Santo_Domingo',
  'America/Sao_Paulo',
  'America/Scoresbysund',
- 'America/Shiprock',
- 'America/St_Barthelemy',
  'America/St_Johns',
  'America/St_Kitts',
  'America/St_Lucia',
@@ -1226,15 +1235,12 @@ common_timezones = \
  'Antarctica/Casey',
  'Antarctica/Davis',
  'Antarctica/DumontDUrville',
- 'Antarctica/Macquarie',
  'Antarctica/Mawson',
  'Antarctica/McMurdo',
  'Antarctica/Palmer',
  'Antarctica/Rothera',
- 'Antarctica/South_Pole',
  'Antarctica/Syowa',
  'Antarctica/Vostok',
- 'Arctic/Longyearbyen',
  'Asia/Aden',
  'Asia/Almaty',
  'Asia/Amman',
@@ -1333,18 +1339,11 @@ common_timezones = \
  'Australia/Melbourne',
  'Australia/Perth',
  'Australia/Sydney',
- 'Canada/Atlantic',
- 'Canada/Central',
- 'Canada/Eastern',
- 'Canada/Mountain',
- 'Canada/Newfoundland',
- 'Canada/Pacific',
  'Europe/Amsterdam',
  'Europe/Andorra',
  'Europe/Athens',
  'Europe/Belgrade',
  'Europe/Berlin',
- 'Europe/Bratislava',
  'Europe/Brussels',
  'Europe/Bucharest',
  'Europe/Budapest',
@@ -1352,46 +1351,35 @@ common_timezones = \
  'Europe/Copenhagen',
  'Europe/Dublin',
  'Europe/Gibraltar',
- 'Europe/Guernsey',
  'Europe/Helsinki',
- 'Europe/Isle_of_Man',
  'Europe/Istanbul',
- 'Europe/Jersey',
  'Europe/Kaliningrad',
  'Europe/Kiev',
  'Europe/Lisbon',
- 'Europe/Ljubljana',
  'Europe/London',
  'Europe/Luxembourg',
  'Europe/Madrid',
  'Europe/Malta',
- 'Europe/Mariehamn',
  'Europe/Minsk',
  'Europe/Monaco',
  'Europe/Moscow',
  'Europe/Oslo',
  'Europe/Paris',
- 'Europe/Podgorica',
  'Europe/Prague',
  'Europe/Riga',
  'Europe/Rome',
  'Europe/Samara',
- 'Europe/San_Marino',
- 'Europe/Sarajevo',
  'Europe/Simferopol',
- 'Europe/Skopje',
  'Europe/Sofia',
  'Europe/Stockholm',
  'Europe/Tallinn',
  'Europe/Tirane',
  'Europe/Uzhgorod',
  'Europe/Vaduz',
- 'Europe/Vatican',
  'Europe/Vienna',
  'Europe/Vilnius',
  'Europe/Volgograd',
  'Europe/Warsaw',
- 'Europe/Zagreb',
  'Europe/Zaporozhye',
  'Europe/Zurich',
  'GMT',
@@ -1409,7 +1397,6 @@ common_timezones = \
  'Pacific/Apia',
  'Pacific/Auckland',
  'Pacific/Chatham',
- 'Pacific/Chuuk',
  'Pacific/Easter',
  'Pacific/Efate',
  'Pacific/Enderbury',
@@ -1435,13 +1422,14 @@ common_timezones = \
  'Pacific/Pago_Pago',
  'Pacific/Palau',
  'Pacific/Pitcairn',
- 'Pacific/Pohnpei',
+ 'Pacific/Ponape',
  'Pacific/Port_Moresby',
  'Pacific/Rarotonga',
  'Pacific/Saipan',
  'Pacific/Tahiti',
  'Pacific/Tarawa',
  'Pacific/Tongatapu',
+ 'Pacific/Truk',
  'Pacific/Wake',
  'Pacific/Wallis',
  'US/Alaska',
@@ -1452,7 +1440,9 @@ common_timezones = \
  'US/Mountain',
  'US/Pacific',
  'UTC']
-common_timezones = [
-        tz for tz in common_timezones if tz in all_timezones]
-        
-common_timezones_set = set(common_timezones)
+
+common_timezones = _LazyList(
+    lambda: filter(resource_exists, common_timezones_unfiltered)
+)
+
+common_timezones_set = set(common_timezones_unfiltered) # XXX
