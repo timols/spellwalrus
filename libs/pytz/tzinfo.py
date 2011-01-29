@@ -7,9 +7,76 @@ try:
 except NameError:
     from sets import Set as set
 
-import pytz
 
-__all__ = []
+def _p(*args):
+    """Factory function for unpickling pytz tzinfo instances.
+
+    Just a wrapper around tzinfo.unpickler to save a few bytes in each pickle
+    by shortening the path.
+    """
+    return unpickler(*args)
+_p.__safe_for_unpickling__ = True
+
+
+_tzinfo_cache = {}
+
+def timezone(zone):
+    r''' Return a datetime.tzinfo implementation for the given timezone
+
+    >>> from datetime import datetime, timedelta
+    >>> utc = timezone('UTC')
+    >>> eastern = timezone('US/Eastern')
+    >>> eastern.zone
+    'US/Eastern'
+    >>> timezone(u'US/Eastern') is eastern
+    True
+    >>> utc_dt = datetime(2002, 10, 27, 6, 0, 0, tzinfo=utc)
+    >>> loc_dt = utc_dt.astimezone(eastern)
+    >>> fmt = '%Y-%m-%d %H:%M:%S %Z (%z)'
+    >>> loc_dt.strftime(fmt)
+    '2002-10-27 01:00:00 EST (-0500)'
+    >>> (loc_dt - timedelta(minutes=10)).strftime(fmt)
+    '2002-10-27 00:50:00 EST (-0500)'
+    >>> eastern.normalize(loc_dt - timedelta(minutes=10)).strftime(fmt)
+    '2002-10-27 01:50:00 EDT (-0400)'
+    >>> (loc_dt + timedelta(minutes=10)).strftime(fmt)
+    '2002-10-27 01:10:00 EST (-0500)'
+
+    Raises UnknownTimeZoneError if passed an unknown zone.
+
+    >>> timezone('Asia/Shangri-La')
+    Traceback (most recent call last):
+    ...
+    UnknownTimeZoneError: 'Asia/Shangri-La'
+
+    >>> timezone(u'\N{TRADE MARK SIGN}')
+    Traceback (most recent call last):
+    ...
+    UnknownTimeZoneError: u'\u2122'
+    '''
+    if zone.upper() == 'UTC':
+        return utc
+
+    try:
+        zone = zone.encode('US-ASCII')
+    except UnicodeEncodeError:
+        # All valid timezones are ASCII
+        raise UnknownTimeZoneError(zone)
+
+    zone = _unmunge_zone(zone)
+    if zone not in _tzinfo_cache:
+        if resource_exists(zone):
+            _tzinfo_cache[zone] = build_tzinfo(zone, open_resource(zone))
+        else:
+            raise UnknownTimeZoneError(zone)
+
+    return _tzinfo_cache[zone]
+
+
+def _unmunge_zone(zone):
+    """Undo the time zone name munging done by older versions of pytz."""
+    return zone.replace('_plus_', '+').replace('_minus_', '-')
+    
 
 _timedelta_cache = {}
 def memorized_timedelta(seconds):
@@ -105,7 +172,7 @@ class StaticTzInfo(BaseTzInfo):
     def __reduce__(self):
         # Special pickle to zone remains a singleton and to cope with
         # database changes. 
-        return pytz._p, (self.zone,)
+        return _p, (self.zone,)
 
 
 class DstTzInfo(BaseTzInfo):
@@ -354,7 +421,7 @@ class DstTzInfo(BaseTzInfo):
     def __reduce__(self):
         # Special pickle to zone remains a singleton and to cope with
         # database changes.
-        return pytz._p, (
+        return _p, (
                 self.zone,
                 _to_seconds(self._utcoffset),
                 _to_seconds(self._dst),
@@ -396,7 +463,7 @@ def unpickler(zone, utcoffset=None, dstoffset=None, tzname=None):
     """
     # Raises a KeyError if zone no longer exists, which should never happen
     # and would be a bug.
-    tz = pytz.timezone(zone)
+    tz = timezone(zone)
 
     # A StaticTzInfo - just return it
     if utcoffset is None:
