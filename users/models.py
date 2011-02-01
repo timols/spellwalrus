@@ -87,4 +87,4 @@ class User(db.Model):
         tz = pytz.timezone(self.timezone)
         now = datetime.datetime.now()
         local_now = utc.localize(now).astimezone(tz)
-        return local_now.isoweekdays() in (6, 7)
+        return local_now.isoweekday() in (6, 7)
