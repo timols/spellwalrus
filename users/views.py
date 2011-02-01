@@ -6,7 +6,7 @@ import urllib
 
 from google.appengine.ext.webapp import template
 from django.utils import simplejson
-from libs import pytz
+from libs.pytz.gae import pytz
 
 from calling.models import Call
 from framework.handlers import BaseHandler

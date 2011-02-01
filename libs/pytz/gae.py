@@ -25,7 +25,7 @@
 """
 import os
 import logging
-import pytz
+import libs.pytz as pytz
 import zipfile
 from cStringIO import StringIO
 
