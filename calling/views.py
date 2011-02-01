@@ -60,7 +60,7 @@ class QuestionResponder(BaseHandler):
             return 'FAIL'
         
         stop = (digits == chars_to_digits('stop'))
-        correct = (digits == chars_to_digits(TODAYS_KEYWORD))
+        correct = (digits == chars_to_digits(TODAYS_KEYWORD['word']))
         
         call_record = Call(user=the_user, correct_response=correct)
         call_record.put()

@@ -3,7 +3,8 @@ import logging
 
 from google.appengine.ext import db
 
-from libs import twilio, pytz
+from libs.pytz.gae import pytz
+from libs import twilio
 from settings import TWILIO_ACCOUNT_SID, TWILIO_ACCOUNT_TOKEN, \
     TWILIO_CALLER_ID, TWILIO_API_VERSION
 

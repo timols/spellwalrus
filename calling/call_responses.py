@@ -3,7 +3,7 @@
 
 
 WAKEUP_CALL = """<Response>
-    <Gather action="%(domain)s/twilio/question/callback" method="GET" timeout="5">
+    <Gather action="%(domain)s/twilio/question/callback" method="GET" timeout="10">
         <Say>Spell the word %(keyword)s.</Say>
         <Say>%(sentence)s</Say>
         <Say>Spell %(keyword)s.</Say>
