@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from settings import WALRUS_DOMAIN
 import twilio
 from creds import TWILIO_ACCOUNT_SID, TWILIO_ACCOUNT_TOKEN, TWILIO_CALLER_ID
 
@@ -15,7 +15,7 @@ account = twilio.Account(TWILIO_ACCOUNT_SID, TWILIO_ACCOUNT_TOKEN)
 d = {
     'From' : TWILIO_CALLER_ID,
     'To' : '(865) 484-6657',
-    'Url' : 'http://4meh.localtunnel.com/twilio/question',
+    'Url' : '%s/jobs/make-wakeup-calls' % WALRUS_DOMAIN,
 }
 try:
     print account.request('/%s/Accounts/%s/Calls.json' % \

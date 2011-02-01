@@ -48,6 +48,7 @@ class User(db.Model):
         
     
     def recently_called(self):
+        from calling.models import Call
         an_hour_ago = datetime.datetime.now() - datetime.timedelta(hours=1)
         calls = Call.all()
         calls.filter('user =', self)

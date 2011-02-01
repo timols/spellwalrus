@@ -2,7 +2,6 @@
 import os
 
 WALRUS_DOMAIN = "http://www.spellwalrus.com"
-
 TWILIO_API_VERSION = '2010-04-01'
 
 # Twilio AccountSid and AuthToken

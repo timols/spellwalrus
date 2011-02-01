@@ -110,17 +110,17 @@ class ScheduledCallMaker(BaseHandler):
         
         now_time = now.time()
         lookback_time = (now - datetime.timedelta(minutes=5)).time()
-        users = User.all().filter('wakeup_time <', now_time).filter('wakeup_time >', lookback_time)
+        all_users = User.all().filter('wakeup_time <', now_time).filter('wakeup_time >', lookback_time)
         
         # exclude users for which their timezone puts them in a weekend
-        users = filter(lambda u: not u.is_local_weekend, users)
+        all_users = filter(lambda u: not u.is_local_weekend(), all_users)
         
         # exclude users for which a call has recently been made
-        users = filter(lambda u: not u.recently_called, users)
+        all_users = filter(lambda u: not u.recently_called(), all_users)
 
         # for each number, tell twilio to make a call
         question_url = "%s/twilio/question" % WALRUS_DOMAIN
-        [u.call(question_url) for u in users]
+        [u.call(question_url) for u in all_users]
         
         self.response.out.write(str(now_time))
 
