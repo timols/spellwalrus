@@ -109,7 +109,7 @@ class ScheduledCallMaker(BaseHandler):
         now = datetime.datetime.now()
         
         now_time = now.time()
-        lookback_time = now_time - datetime.timedelta(minutes=5)
+        lookback_time = (now - datetime.timedelta(minutes=5)).time()
         users = User.all().filter('wakeup_time <', now_time).filter('wakeup_time >', lookback_time)
         
         # exclude users for which their timezone puts them in a weekend
